@@ -9,10 +9,22 @@ const Navbar = () => {
         
         <ul className="nav-links">
           <li><Link to="/" className="nav-link">Home</Link></li>
+          
+          <li className="dropdown">
+            <Link to="/products" className="nav-link">Products ▾</Link>
+            <div className="dropdown-content">
+              <Link to="/products/gaming">Gaming</Link>
+              <Link to="/products/audio">Audio</Link>
+              <Link to="/products/accessories">Accessories</Link>
+            </div>
+          </li>
+
+          <li><Link to="/wishlist" className="nav-link">Wishlist</Link></li>
           <li><Link to="/cart" className="nav-link">Cart</Link></li>
           <li><Link to="/contact" className="nav-link">Contact</Link></li>
-          {/* Use the new btn-nav class for a distinctive look */}
-          <li><Link to="/login" className="btn-nav">Login</Link></li>
+          
+          {/* Change Login to Profile for easy access */}
+          <li><Link to="/profile" className="btn-nav">Profile</Link></li>
         </ul>
       </div>
     </nav>

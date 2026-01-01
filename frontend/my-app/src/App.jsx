@@ -1,73 +1,57 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-// --- Layout Components ---
+// ... other imports
 import Navbar from './components/Navbar';
-
-// --- Page Imports ---
-// Public Pages
 import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
 import Contact from './pages/Contact';
-import NotFound from './pages/NotFound';
-import ForgotPassword from './pages/ForgotPassword';
-
-// Authentication Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
-
-// Shopping & Transaction Pages
+import ForgotPassword from './pages/ForgotPassword';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
-
-// User Account Pages
+import OrderSuccess from './pages/OrderSuccess';
 import Profile from './pages/Profile';
 import Orders from './pages/Orders';
+import ProductList from './pages/ProductList';
+import NotFound from './pages/NotFound';
 
-// Import CSS (Keep your existing styles)
-import './App.css'; 
+// --- IMPORT WISHLIST HERE ---
+import Wishlist from './pages/Wishlist'; // <--- ADD THIS
+
+import './App.css';
 
 function App() {
   return (
     <Router>
       <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        
-        {/* Navigation Bar - Visible on all pages */}
         <Navbar />
-
-        {/* Main Content Area */}
         <main style={{ flex: 1 }}>
           <Routes>
-            {/* 1. Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/products" element={<ProductList />} />
+            <Route path="/products/:category" element={<ProductList />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-
-            {/* 2. Authentication Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            
-
-            {/* 3. Shopping Routes */}
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
-          
-
-            {/* 4. Protected User Routes (Profile & History) */}
+            <Route path="/order-success" element={<OrderSuccess />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/orders" element={<Orders />} />
 
-            {/* 5. Error Handling - Catch all unmatched routes */}
+            {/* --- ADD THE ROUTE HERE --- */}
+            <Route path="/wishlist" element={<Wishlist />} /> 
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
-
-        {/* Footer */}
         <footer style={{ textAlign: 'center', padding: '20px', backgroundColor: '#333', color: '#fff', marginTop: 'auto' }}>
           <p>&copy; {new Date().getFullYear()} MyShop E-Commerce. All rights reserved.</p>
         </footer>
-
       </div>
     </Router>
   );

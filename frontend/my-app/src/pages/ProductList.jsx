@@ -1,27 +1,41 @@
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import ProductCard from '../components/ProductCard';
 import { products } from '../data';
 
 const ProductList = () => {
+  const { category } = useParams(); // Reads the category from the URL
+  const [filteredProducts, setFilteredProducts] = useState([]);
+
+  useEffect(() => {
+    if (category) {
+      // If a category exists in URL, filter by it
+      const filtered = products.filter((p) => p.category === category);
+      setFilteredProducts(filtered);
+    } else {
+      // If no category (just /products), show all
+      setFilteredProducts(products);
+    }
+  }, [category]);
+
+  // Capitalize first letter for the title
+  const title = category 
+    ? category.charAt(0).toUpperCase() + category.slice(1) 
+    : 'All Products';
+
   return (
-    <div className="section">
-      <h2 className="section-title">All Products</h2>
-      <div className="grid">
-        {products.map((product) => (
-          <div key={product.id} className="card">
-            <Link to={`/product/${product.id}`}>
-              <img src={product.image} alt={product.name} />
-              <div className="card-body">
-                <h3>{product.name}</h3>
-                <p style={{ color: '#64748b', fontSize: '0.9rem' }}>{product.category}</p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
-                  <span className="card-price">${product.price}</span>
-                  <button className="btn" style={{ padding: '5px 15px', fontSize: '0.8rem' }}>View</button>
-                </div>
-              </div>
-            </Link>
-          </div>
-        ))}
-      </div>
+    <div className="container" style={{ padding: '40px 20px' }}>
+      <h2 className="section-title">{title}</h2>
+      
+      {filteredProducts.length === 0 ? (
+        <p style={{ textAlign: 'center' }}>No products found in this category.</p>
+      ) : (
+        <div className="product-grid">
+          {filteredProducts.map((product) => (
+            <ProductCard key={product._id} product={product} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -1,32 +1,53 @@
-// src/pages/Wishlist.jsx
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import ProductCard from '../components/ProductCard';
 
-function Wishlist() {
-  const [items] = useState([
-    { id: 1, name: "Sample Wishlist Product", price: 499 },
-  ]);
+const Wishlist = () => {
+  const [wishlist, setWishlist] = useState([]);
+
+  // Function to load wishlist from local storage
+  const loadWishlist = () => {
+    const savedWishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    setWishlist(savedWishlist);
+  };
+
+  useEffect(() => {
+    loadWishlist();
+
+    // specific event listener to update if items are removed
+    window.addEventListener('storage', loadWishlist);
+    // Custom event listener for updates within the same tab
+    window.addEventListener('wishlistUpdated', loadWishlist);
+
+    return () => {
+      window.removeEventListener('storage', loadWishlist);
+      window.removeEventListener('wishlistUpdated', loadWishlist);
+    };
+  }, []);
 
   return (
-    <section>
-      <h1>Wishlist</h1>
-      {items.length === 0 ? (
-        <p>No items in wishlist.</p>
+    <div className="container" style={{ padding: '40px 0' }}>
+      <h2 className="section-title">My Wishlist ({wishlist.length})</h2>
+
+      {wishlist.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+          <h3 style={{ color: '#666', marginBottom: '20px' }}>Your wishlist is empty.</h3>
+          <p style={{ color: '#999', marginBottom: '30px' }}>Save items you like to buy them later.</p>
+          <Link to="/" className="btn-nav">
+            Start Shopping
+          </Link>
+        </div>
       ) : (
-        <ul className="wishlist-list">
-          {items.map(item => (
-            <li key={item.id} className="wishlist-item">
-              <span>{item.name}</span>
-              <span>₹{item.price}</span>
-              <Link to={`/products/${item.id}`} className="btn-secondary">
-                View
-              </Link>
-            </li>
+        <div className="product-grid">
+          {wishlist.map((product) => (
+            // We reuse ProductCard. Since it has the heart button logic, 
+            // clicking the heart here will untoggle it and remove it from the list.
+            <ProductCard key={product._id} product={product} />
           ))}
-        </ul>
+        </div>
       )}
-    </section>
+    </div>
   );
-}
+};
 
 export default Wishlist;
