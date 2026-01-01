@@ -10,6 +10,7 @@ import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
 import Contact from './pages/Contact';
 import NotFound from './pages/NotFound';
+import ForgotPassword from './pages/ForgotPassword';
 
 // Authentication Pages
 import Login from './pages/Login';
@@ -41,6 +42,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
 
             {/* 2. Authentication Routes */}
             <Route path="/login" element={<Login />} />

@@ -15,8 +15,9 @@ const ProductCard = ({ product }) => {
         </p>
         
         <div className="card-footer">
-          <span className="price">${product.price}</span>
-          <Link to={`/product/${product._id}`} className="btn btn-primary">
+          {/* Symbol Changed Below */}
+          <span className="price">₹{product.price.toLocaleString()}</span>
+          <Link to={`/product/${product._id}`} className="btn-details">
             View Details
           </Link>
         </div>
