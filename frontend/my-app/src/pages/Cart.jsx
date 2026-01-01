@@ -1,116 +1,256 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useContext } from "react";
+import { Link } from "react-router-dom";
+import { ShopContext } from "../context/ShopContext";
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState([]);
-  const navigate = useNavigate();
+  const {
+    cartItemsArray,
+    cartTotal,
+    updateQuantity,
+    removeFromCart,
+  } = useContext(ShopContext);
 
-  // Load items from local storage when the page opens
-  useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem('cart')) || [];
-    setCartItems(savedCart);
-  }, []);
-
-  // Function to remove an item
-  const removeFromCart = (id) => {
-    const updatedCart = cartItems.filter(item => item._id !== id);
-    setCartItems(updatedCart);
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
-  };
-
-  const total = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
+  if (cartItemsArray.length === 0) {
+    return (
+      <section className="cartPage" style={page}>
+        <div style={container}>
+          <div style={emptyCard}>
+            <div style={emptyIcon} aria-hidden="true">
+              🛒
+            </div>
+            <h2 style={emptyTitle}>Your cart is empty</h2>
+            <p style={emptyText}>
+              Add some products to get started!
+            </p>
+            <Link to="/products" style={primaryBtn}>
+              Browse Products
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <div className="container" style={{ padding: '40px 20px' }}>
-      <h2 style={{ marginBottom: '20px' }}>Shopping Cart</h2>
-      
-      {cartItems.length === 0 ? (
-        <div style={{ textAlign: 'center', marginTop: '50px' }}>
-            <p style={{ fontSize: '1.2rem' }}>Your cart is empty.</p>
-            <Link to="/">
-                <button style={{ ...btnStyle, marginTop: '20px', backgroundColor: '#333', color: 'white' }}>Go Shopping</button>
-            </Link>
-        </div>
-      ) : (
-        <>
-          <div style={{ marginTop: '20px', background: 'white', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-            {cartItems.map((item) => (
-              <div key={item._id} style={itemStyle}>
-                
-                {/* Product Image & Name */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    <img src={item.image} alt={item.name} style={{ width: '80px', height: '80px', objectFit: 'contain' }} />
-                    <div>
-                        <h4 style={{ margin: '0 0 5px 0' }}>{item.name}</h4>
-                        <p style={{ color: '#666', fontSize: '0.9rem' }}>Qty: {item.qty}</p>
-                        <button onClick={() => removeFromCart(item._id)} style={removeBtnStyle}>Remove</button>
-                    </div>
-                </div>
+    <section className="cartPage" style={page}>
+      <div style={container}>
+        <header style={headerCard}>
+          <h1 style={title}>Shopping Cart</h1>
+          <p style={subtitle}>
+            Review items, update quantity, and checkout.
+          </p>
+        </header>
 
-                {/* Price */}
-                <div>
-                  <p style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>₹{(item.price * item.qty).toLocaleString()}</p>
+        <div style={layout}>
+          <div style={itemsCol}>
+            {cartItemsArray.map(({ product, quantity }) => (
+              <article key={product._id} style={itemCard}>
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  style={itemImg}
+                />
+                <div style={itemBody}>
+                  <h3 style={itemTitle}>{product.name}</h3>
+                  <p style={itemPrice}>₹{product.price}</p>
+                  <div style={controls}>
+                    <button
+                      type="button"
+                      style={qtyBtn}
+                      onClick={() =>
+                        updateQuantity(product._id, quantity - 1)
+                      }
+                    >
+                      −
+                    </button>
+                    <span style={qtyLabel}>{quantity}</span>
+                    <button
+                      type="button"
+                      style={qtyBtn}
+                      onClick={() =>
+                        updateQuantity(product._id, quantity + 1)
+                      }
+                    >
+                      +
+                    </button>
+                    <button
+                      type="button"
+                      style={removeBtn}
+                      onClick={() => removeFromCart(product._id)}
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
-          
-          <div style={summaryStyle}>
-            <h3>Total: ₹{total.toLocaleString()}</h3>
-            <button onClick={() => navigate('/checkout')} style={checkoutBtnStyle}>
-                Proceed to Checkout
-            </button>
-          </div>
-        </>
-      )}
-    </div>
+
+          <aside style={summaryCard}>
+            <h2 style={summaryTitle}>Order Summary</h2>
+            <p style={summaryLine}>
+              Items:{" "}
+              <strong>
+                {cartItemsArray.reduce(
+                  (sum, i) => sum + i.quantity,
+                  0
+                )}
+              </strong>
+            </p>
+            <p style={summaryLine}>
+              Total: <strong>₹{cartTotal}</strong>
+            </p>
+            <Link to="/checkout" style={primaryBtn}>
+              Proceed to Checkout
+            </Link>
+          </aside>
+        </div>
+      </div>
+    </section>
   );
 };
 
-// Styles
-const itemStyle = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  padding: '20px',
-  borderBottom: '1px solid #eee',
-};
-
-const summaryStyle = {
-  marginTop: '30px',
-  textAlign: 'right',
-  paddingTop: '20px',
-};
-
-const btnStyle = {
-  padding: '10px 20px',
-  border: 'none',
-  borderRadius: '6px',
-  cursor: 'pointer',
-  fontWeight: 'bold',
-};
-
-const checkoutBtnStyle = {
-  padding: '12px 24px',
-  backgroundColor: '#10b981', 
-  color: 'white',
-  border: 'none',
-  borderRadius: '6px',
-  fontSize: '16px',
-  fontWeight: '600',
-  cursor: 'pointer',
-  marginTop: '15px',
-};
-
-const removeBtnStyle = {
-  background: 'transparent',
-  color: '#dc2626',
-  border: 'none',
-  padding: '0',
-  cursor: 'pointer',
-  textDecoration: 'underline',
-  fontSize: '0.9rem',
-  marginTop: '5px'
-};
-
 export default Cart;
+
+/* Inline styles matching your glassmorphism theme */
+
+const page = {
+  minHeight: "100vh",
+  padding: "24px 16px 40px",
+  background:
+    "radial-gradient(1200px 700px at 15% 10%, rgba(95, 92, 255, 0.28), transparent 55%)," +
+    "radial-gradient(1000px 600px at 85% 20%, rgba(0, 212, 255, 0.24), transparent 55%)," +
+    "linear-gradient(135deg, #0b1020, #0b1227 45%, #08101f)",
+  color: "#eaf0ff",
+};
+
+const container = {
+  width: "min(1100px, 94vw)",
+  margin: "0 auto",
+};
+
+const headerCard = {
+  borderRadius: 18,
+  padding: "16px 16px",
+  marginBottom: 18,
+  background: "rgba(255,255,255,0.08)",
+  border: "1px solid rgba(255,255,255,0.12)",
+  boxShadow: "0 18px 50px rgba(0,0,0,0.35)",
+  backdropFilter: "blur(14px)",
+  WebkitBackdropFilter: "blur(14px)",
+};
+
+const title = { margin: 0, fontSize: 24 };
+const subtitle = { margin: "6px 0 0", opacity: 0.78, fontSize: 13 };
+
+const layout = {
+  display: "grid",
+  gridTemplateColumns: "minmax(0, 2.3fr) minmax(260px, 1fr)",
+  gap: 18,
+};
+
+const itemsCol = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 12,
+};
+
+const itemCard = {
+  display: "flex",
+  gap: 14,
+  padding: 12,
+  borderRadius: 14,
+  background: "rgba(15,23,42,0.95)",
+  border: "1px solid rgba(148,163,184,0.4)",
+  boxShadow: "0 12px 30px rgba(0,0,0,0.5)",
+};
+
+const itemImg = {
+  width: 90,
+  height: 90,
+  borderRadius: 10,
+  objectFit: "cover",
+};
+
+const itemBody = { flex: 1 };
+const itemTitle = { margin: 0, fontSize: 16, fontWeight: 600 };
+const itemPrice = {
+  margin: "4px 0 8px",
+  fontSize: 15,
+  fontWeight: 700,
+  color: "#a5b4fc",
+};
+
+const controls = {
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+};
+
+const qtyBtn = {
+  width: 28,
+  height: 28,
+  borderRadius: 8,
+  border: "1px solid rgba(148,163,184,0.8)",
+  background: "rgba(15,23,42,0.8)",
+  color: "#e5e7eb",
+  cursor: "pointer",
+};
+
+const qtyLabel = { minWidth: 22, textAlign: "center", fontWeight: 600 };
+
+const removeBtn = {
+  marginLeft: "auto",
+  padding: "6px 10px",
+  borderRadius: 999,
+  border: "none",
+  background: "rgba(239,68,68,0.96)",
+  color: "#fff",
+  fontSize: 12,
+  cursor: "pointer",
+};
+
+const summaryCard = {
+  borderRadius: 16,
+  padding: 16,
+  background: "rgba(15,23,42,0.96)",
+  border: "1px solid rgba(148,163,184,0.45)",
+  boxShadow: "0 16px 40px rgba(0,0,0,0.55)",
+  display: "flex",
+  flexDirection: "column",
+  gap: 8,
+};
+
+const summaryTitle = { margin: 0, fontSize: 18 };
+const summaryLine = { margin: 0, fontSize: 14 };
+
+const primaryBtn = {
+  marginTop: 12,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "10px 18px",
+  borderRadius: 999,
+  border: "none",
+  background:
+    "linear-gradient(135deg, rgba(59,130,246,0.98), rgba(37,99,235,0.98))",
+  color: "#fff",
+  fontSize: 13,
+  fontWeight: 600,
+  cursor: "pointer",
+  textDecoration: "none",
+};
+
+const emptyCard = {
+  marginTop: 40,
+  padding: "32px 18px 28px",
+  borderRadius: 18,
+  background: "rgba(15,23,42,0.95)",
+  border: "1px solid rgba(148,163,184,0.45)",
+  textAlign: "center",
+  boxShadow: "0 18px 50px rgba(0,0,0,0.55)",
+};
+
+const emptyIcon = { fontSize: 34, marginBottom: 10 };
+const emptyTitle = { margin: "0 0 6px", fontSize: 20 };
+const emptyText = { margin: "0 0 16px", opacity: 0.8, fontSize: 13 };

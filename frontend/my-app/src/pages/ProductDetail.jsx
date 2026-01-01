@@ -1,110 +1,414 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { products } from '../data'; 
+import React, { useMemo, useState, useContext, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { products } from "../data";
+import { ShopContext } from "../context/ShopContext";
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [qty, setQty] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { addToCart } = useContext(ShopContext);
 
   const product = products.find((p) => p._id === id);
+  const [qty, setQty] = useState(1);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const inStock = true; // mock
 
-  // Check wishlist status on load
+  // quantity normalized
+  const safeQty = useMemo(
+    () => Math.max(1, Number(qty) || 1),
+    [qty]
+  );
+
+  // check wishlist on mount
   useEffect(() => {
-    if (product) {
-        const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-        const exists = wishlist.find(item => item._id === product._id);
-        setIsWishlisted(!!exists);
-    }
+    if (!product) return;
+    const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+    const exists = wishlist.find((item) => item._id === product._id);
+    setIsWishlisted(!!exists);
   }, [product]);
 
   if (!product) {
-    return <h2 style={{ textAlign: 'center', marginTop: '50px' }}>Product not found</h2>;
+    return (
+      <div style={page}>
+        <div style={emptyCard}>
+          <h2 style={{ margin: 0 }}>Product not found</h2>
+          <p style={{ margin: "8px 0 0", opacity: 0.8 }}>
+            The product you are looking for doesn’t exist.
+          </p>
+          <Link to="/products" style={backLink}>
+            ← Back to Products
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   const handleAddToCart = () => {
-    const existingCart = JSON.parse(localStorage.getItem('cart')) || [];
-    const existingItem = existingCart.find(item => item._id === product._id);
-    let newCart;
-    if (existingItem) {
-        newCart = existingCart.map(item => 
-            item._id === product._id ? { ...item, qty: item.qty + qty } : item
-        );
-    } else {
-        newCart = [...existingCart, { ...product, qty }];
-    }
-    localStorage.setItem('cart', JSON.stringify(newCart));
-    navigate('/cart');
+    addToCart(product._id, safeQty);
+    alert(`Added ${safeQty} item(s) to cart!`);
+    navigate("/cart");
   };
 
   const toggleWishlist = () => {
-    const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
     let newList;
     if (isWishlisted) {
-        newList = wishlist.filter(item => item._id !== product._id);
+      newList = wishlist.filter((item) => item._id !== product._id);
     } else {
-        newList = [...wishlist, product];
+      newList = [...wishlist, product];
     }
-    localStorage.setItem('wishlist', JSON.stringify(newList));
+    localStorage.setItem("wishlist", JSON.stringify(newList));
     setIsWishlisted(!isWishlisted);
   };
 
   return (
-    <div className="container" style={{ display: 'flex', gap: '40px', padding: '40px 0', flexWrap: 'wrap' }}>
-      
-      <div style={{ flex: 1, minWidth: '300px' }}>
-        <img src={product.image} alt={product.name} style={{ width: '100%', borderRadius: '16px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }} />
-      </div>
+    <div style={page}>
+      {/* Blobs */}
+      <div style={{ ...blob, ...blob1 }} />
+      <div style={{ ...blob, ...blob2 }} />
+      <div style={{ ...blob, ...blob3 }} />
 
-      <div style={{ flex: 1, minWidth: '300px' }}>
-        <h1 style={{ fontSize: '2.5rem', marginBottom: '10px' }}>{product.name}</h1>
-        <p style={{ fontSize: '2rem', color: '#2563eb', margin: '10px 0', fontWeight: '800' }}>
-            ₹{product.price.toLocaleString()}
-        </p>
-        <p style={{ lineHeight: '1.6', color: '#4b5563', fontSize: '1.1rem' }}>{product.description}</p>
-        
-        <div style={{ marginTop: '30px' }}>
-            <p style={{ marginBottom: '10px' }}>Status: <span style={{ color: 'green', fontWeight: 'bold' }}>In Stock</span></p>
-            
-            <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                <input 
-                  type="number" 
-                  value={qty} 
-                  min="1" 
-                  onChange={(e) => setQty(Number(e.target.value))}
-                  style={{ padding: '10px', width: '60px', borderRadius: '8px', border: '1px solid #ccc' }} 
-                />
-                
-                <button onClick={handleAddToCart} className="btn-nav" style={{ cursor: 'pointer', border: 'none' }}>
-                  Add to Cart
-                </button>
+      <div style={wrap}>
+        <div style={card}>
+          {/* Left: image */}
+          <div style={imgCol}>
+            <div style={imgFrame}>
+              <img src={product.image} alt={product.name} style={img} />
+            </div>
+          </div>
 
-                {/* Toggle Wishlist Button */}
-                <button 
-                  onClick={toggleWishlist} 
-                  style={{ 
-                    padding: '10px 15px', 
-                    border: isWishlisted ? '2px solid red' : '2px solid #ccc', 
-                    background: 'white', 
-                    color: isWishlisted ? 'red' : '#555', 
-                    borderRadius: '8px', 
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
+          {/* Right: info */}
+          <div style={infoCol}>
+            <Link to="/products" style={backLink}>
+              ← Back to Products
+            </Link>
+
+            <h1 style={title}>{product.name}</h1>
+
+            <div style={metaRow}>
+              <span style={pill}>
+                Status:{" "}
+                <span
+                  style={{
+                    color: inStock ? "#22c55e" : "#ef4444",
+                    fontWeight: 900,
                   }}
                 >
-                  {isWishlisted ? '♥ Saved' : '♡ Add to Wishlist'}
-                </button>
+                  {inStock ? "In Stock" : "Out of Stock"}
+                </span>
+              </span>
+              <span style={pillSoft}>Free returns</span>
+              <span style={pillSoft}>Secure checkout</span>
+              {/* Wishlist pill */}
+              <button
+                type="button"
+                onClick={toggleWishlist}
+                style={wishPill(isWishlisted)}
+              >
+                {isWishlisted ? "♥ In wishlist" : "♡ Add to wishlist"}
+              </button>
             </div>
+
+            <div style={priceRow}>
+              <div style={price}>₹{product.price}</div>
+              <div style={priceHint}>Inclusive of all taxes</div>
+            </div>
+
+            <p style={desc}>{product.description}</p>
+
+            <div style={buyBox}>
+              <div style={qtyRow}>
+                <span style={qtyLabel}>Quantity</span>
+
+                <div style={stepper}>
+                  <button
+                    type="button"
+                    style={stepBtn}
+                    onClick={() =>
+                      setQty((q) => Math.max(1, (Number(q) || 1) - 1))
+                    }
+                    aria-label="Decrease quantity"
+                  >
+                    −
+                  </button>
+
+                  <input
+                    type="number"
+                    min="1"
+                    value={safeQty}
+                    onChange={(e) => setQty(e.target.value)}
+                    style={qtyInput}
+                  />
+
+                  <button
+                    type="button"
+                    style={stepBtn}
+                    onClick={() => setQty((q) => (Number(q) || 1) + 1)}
+                    aria-label="Increase quantity"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <button
+                style={{ ...btn, ...(inStock ? null : btnDisabled) }}
+                disabled={!inStock}
+                onClick={handleAddToCart}
+              >
+                <span style={btnGlow} />
+                Add to Cart
+              </button>
+
+              <div style={note}>
+                Tip: add more items to unlock better combo offers.
+              </div>
+            </div>
+          </div>
         </div>
-        
-        <div style={{ marginTop: '20px' }}>
-            <Link to="/" style={{ color: '#2563eb', textDecoration: 'none', fontWeight: '600' }}>&larr; Back to Products</Link>
-        </div>
+
+        <footer style={footer}>
+          © 2026 MyShop E‑Commerce. All rights reserved.
+        </footer>
       </div>
     </div>
   );
 };
 
 export default ProductDetail;
+
+/* ---------- Styles ---------- */
+
+const page = {
+  minHeight: "100vh",
+  position: "relative",
+  overflow: "hidden",
+  padding: "24px 16px 40px",
+  background:
+    "radial-gradient(1200px 700px at 15% 10%, rgba(95, 92, 255, 0.28), transparent 55%)," +
+    "radial-gradient(1000px 600px at 85% 20%, rgba(0, 212, 255, 0.24), transparent 55%)," +
+    "linear-gradient(135deg, #0b1020, #0b1227 45%, #08101f)",
+  color: "#eaf0ff",
+};
+
+const blob = {
+  position: "absolute",
+  width: 520,
+  height: 520,
+  borderRadius: "50%",
+  filter: "blur(20px)",
+  opacity: 0.5,
+  animation: "float 9s ease-in-out infinite",
+  pointerEvents: "none",
+};
+
+const blob1 = {
+  left: -160,
+  top: -180,
+  background: "radial-gradient(circle at 30% 30%, #7c3aed, transparent 60%)",
+};
+
+const blob2 = {
+  right: -220,
+  top: -120,
+  background: "radial-gradient(circle at 30% 30%, #06b6d4, transparent 60%)",
+  animationDelay: "1.8s",
+};
+
+const blob3 = {
+  left: "10%",
+  bottom: -320,
+  background: "radial-gradient(circle at 30% 30%, #22c55e, transparent 60%)",
+  animationDelay: "3s",
+};
+
+const wrap = { width: "min(1100px, 94vw)", margin: "0 auto" };
+
+const card = {
+  display: "grid",
+  gridTemplateColumns: "1.1fr 1fr",
+  gap: 22,
+  padding: 18,
+  borderRadius: 22,
+  background: "rgba(255,255,255,0.08)",
+  border: "1px solid rgba(255,255,255,0.12)",
+  boxShadow:
+    "0 20px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08)",
+  backdropFilter: "blur(14px)",
+  WebkitBackdropFilter: "blur(14px)",
+};
+
+const imgCol = { minWidth: 0 };
+const imgFrame = {
+  borderRadius: 18,
+  overflow: "hidden",
+  background: "rgba(10, 16, 34, 0.5)",
+  border: "1px solid rgba(255,255,255,0.1)",
+};
+const img = {
+  width: "100%",
+  height: "100%",
+  display: "block",
+  objectFit: "cover",
+};
+
+const infoCol = { minWidth: 0, padding: "4px 6px" };
+
+const backLink = {
+  display: "inline-block",
+  marginBottom: 10,
+  color: "#9ad9ff",
+  textDecoration: "none",
+  fontWeight: 800,
+  fontSize: 13,
+};
+
+const title = { margin: "6px 0 10px", fontSize: "clamp(22px, 2.6vw, 36px)" };
+
+const metaRow = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 10,
+  marginBottom: 12,
+};
+
+const pill = {
+  padding: "8px 10px",
+  borderRadius: 999,
+  background: "rgba(10,16,34,0.55)",
+  border: "1px solid rgba(255,255,255,0.12)",
+  fontSize: 12,
+  opacity: 0.95,
+};
+
+const pillSoft = {
+  padding: "8px 10px",
+  borderRadius: 999,
+  background: "rgba(255,255,255,0.06)",
+  border: "1px solid rgba(255,255,255,0.1)",
+  fontSize: 12,
+  opacity: 0.85,
+};
+
+const wishPill = (active) => ({
+  padding: "8px 10px",
+  borderRadius: 999,
+  border: "1px solid rgba(248,113,113,0.9)",
+  background: active
+    ? "rgba(239,68,68,0.9)"
+    : "rgba(15,23,42,0.7)",
+  color: "#fff",
+  fontSize: 12,
+  cursor: "pointer",
+});
+
+const priceRow = { margin: "4px 0 14px" };
+const price = {
+  fontSize: 28,
+  fontWeight: 950,
+  letterSpacing: 0.2,
+  background: "linear-gradient(135deg, #a5b4fc, #9ad9ff)",
+  WebkitBackgroundClip: "text",
+  backgroundClip: "text",
+  color: "transparent",
+};
+const priceHint = { marginTop: 4, fontSize: 12, opacity: 0.7 };
+
+const desc = { margin: "0 0 18px", opacity: 0.85, lineHeight: 1.6 };
+
+const buyBox = {
+  borderRadius: 18,
+  padding: 14,
+  background: "rgba(10,16,34,0.45)",
+  border: "1px solid rgba(255,255,255,0.1)",
+};
+
+const qtyRow = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 12,
+};
+const qtyLabel = { fontSize: 12, opacity: 0.85, fontWeight: 800 };
+
+const stepper = {
+  display: "flex",
+  alignItems: "center",
+  borderRadius: 14,
+  overflow: "hidden",
+  border: "1px solid rgba(255,255,255,0.12)",
+  background: "rgba(255,255,255,0.06)",
+};
+
+const stepBtn = {
+  width: 42,
+  height: 40,
+  border: "none",
+  cursor: "pointer",
+  background: "transparent",
+  color: "#eaf0ff",
+  fontSize: 18,
+};
+
+const qtyInput = {
+  width: 64,
+  height: 40,
+  border: "none",
+  outline: "none",
+  textAlign: "center",
+  background: "transparent",
+  color: "#eaf0ff",
+  fontWeight: 900,
+};
+
+const btn = {
+  marginTop: 14,
+  width: "100%",
+  position: "relative",
+  overflow: "hidden",
+  padding: "12px 14px",
+  borderRadius: 14,
+  border: "1px solid rgba(255,255,255,0.18)",
+  background: "linear-gradient(135deg, #5f5cff, #00d4ff)",
+  color: "#071024",
+  fontWeight: 950,
+  letterSpacing: 0.2,
+  cursor: "pointer",
+  boxShadow: "0 14px 30px rgba(0, 212, 255, 0.18)",
+};
+
+const btnGlow = {
+  position: "absolute",
+  inset: -80,
+  background:
+    "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.55), transparent 45%)",
+  transform: "translateX(-30%)",
+  opacity: 0.6,
+  pointerEvents: "none",
+};
+
+const btnDisabled = {
+  opacity: 0.5,
+  cursor: "not-allowed",
+  filter: "grayscale(20%)",
+};
+
+const note = { marginTop: 10, fontSize: 12, opacity: 0.7 };
+
+const footer = {
+  marginTop: 18,
+  padding: "16px 10px",
+  textAlign: "center",
+  opacity: 0.65,
+};
+
+const emptyCard = {
+  width: "min(520px, 92vw)",
+  margin: "90px auto 0",
+  padding: 22,
+  borderRadius: 18,
+  background: "rgba(255,255,255,0.08)",
+  border: "1px solid rgba(255,255,255,0.12)",
+  backdropFilter: "blur(14px)",
+  WebkitBackdropFilter: "blur(14px)",
+};

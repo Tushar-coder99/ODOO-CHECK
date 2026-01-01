@@ -1,0 +1,144 @@
+.pcard {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+}
+
+.pcard:hover {
+  transform: translateY(-6px) scale(1.01);
+  border-color: rgba(0, 212, 255, 0.28);
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 212, 255, 0.08) inset;
+}
+
+.pcard__glow {
+  position: absolute;
+  inset: -120px;
+  background: radial-gradient(circle at 25% 20%, rgba(95, 92, 255, 0.35), transparent 45%),
+              radial-gradient(circle at 75% 30%, rgba(0, 212, 255, 0.25), transparent 50%);
+  opacity: 0.55;
+  filter: blur(18px);
+  transform: translateZ(0);
+  pointer-events: none;
+  transition: opacity 220ms ease;
+}
+
+.pcard:hover .pcard__glow {
+  opacity: 0.9;
+}
+
+.pcard__imgWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 11;
+  overflow: hidden;
+  background: rgba(10, 16, 34, 0.45);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.pcard__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.02);
+  transition: transform 240ms ease, filter 240ms ease;
+  filter: saturate(1.05) contrast(1.02);
+}
+
+.pcard:hover .pcard__img {
+  transform: scale(1.08);
+  filter: saturate(1.15) contrast(1.05);
+}
+
+.pcard__body {
+  padding: 14px 14px 16px;
+  color: #eaf0ff;
+}
+
+.pcard__title {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.pcard__desc {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  opacity: 0.82;
+}
+
+.pcard__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pcard__price {
+  font-weight: 900;
+  letter-spacing: 0.2px;
+  background: linear-gradient(135deg, #a5b4fc, #9ad9ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.pcard__btn {
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 900;
+  padding: 9px 12px;
+  border-radius: 12px;
+  color: #071024;
+  background: linear-gradient(135deg, #5f5cff, #00d4ff);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 12px 26px rgba(0, 212, 255, 0.14);
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+
+.pcard__btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 34px rgba(0, 212, 255, 0.22);
+  filter: brightness(1.03);
+}
+
+.pcard__imgWrap {
+  position: relative;
+}
+
+/* Heart icon button in top-right of image */
+.pcard__wish {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(15, 23, 42, 0.7);
+  color: #e5e7eb;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-out;
+}
+
+.pcard__wish:hover {
+  background: rgba(37, 99, 235, 0.9);
+  color: #ffffff;
+}
+
+.pcard__wish.is-active {
+  background: rgba(239, 68, 68, 0.96);
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(248, 113, 113, 0.9);
+}

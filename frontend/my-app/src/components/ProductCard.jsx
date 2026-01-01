@@ -1,74 +1,62 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import "../styles/ProductCard.css";
 
 const ProductCard = ({ product }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
 
-  // Check if item is already in wishlist when component loads
+  // On first render, check whether this product is already in wishlist
   useEffect(() => {
-    const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-    const exists = wishlist.find(item => item._id === product._id);
+    const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+    const exists = wishlist.find((item) => item._id === product._id);
     setIsWishlisted(!!exists);
   }, [product._id]);
 
   const toggleWishlist = () => {
-    const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
     let updatedWishlist;
 
     if (isWishlisted) {
-      // Remove
-      updatedWishlist = wishlist.filter(item => item._id !== product._id);
+      // remove
+      updatedWishlist = wishlist.filter((item) => item._id !== product._id);
     } else {
-      // Add
+      // add
       updatedWishlist = [...wishlist, product];
     }
 
-    localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
+    localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
     setIsWishlisted(!isWishlisted);
   };
 
   return (
-    <div className="product-card" style={{ position: 'relative' }}>
-      
-      {/* Wishlist Button Top-Right */}
-      <button 
-        onClick={toggleWishlist}
-        style={{
-            position: 'absolute',
-            top: '10px',
-            right: '10px',
-            background: 'white',
-            border: '1px solid #ddd',
-            borderRadius: '50%',
-            width: '35px',
-            height: '35px',
-            cursor: 'pointer',
-            fontSize: '1.2rem',
-            color: isWishlisted ? 'red' : '#ccc',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-            zIndex: 10
-        }}
-        title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
-      >
-        {isWishlisted ? '♥' : '♡'}
-      </button>
+    <div className="pcard">
+      <div className="pcard__glow" aria-hidden="true" />
 
-      <div className="card-img-wrapper">
-        <img src={product.image} alt={product.name} className="card-img" />
+      <div className="pcard__imgWrap">
+        <img src={product.image} alt={product.name} className="pcard__img" />
+
+        {/* Heart wishlist button */}
+        <button
+          type="button"
+          className={`pcard__wish ${isWishlisted ? "is-active" : ""}`}
+          onClick={toggleWishlist}
+          aria-label={
+            isWishlisted ? "Remove from wishlist" : "Add to wishlist"
+          }
+        >
+          {isWishlisted ? "♥" : "♡"}
+        </button>
       </div>
-      
-      <div className="card-body">
-        <h3 className="card-title">{product.name}</h3>
-        <p className="card-desc">
-          {product.description.substring(0, 60)}...
+
+      <div className="pcard__body">
+        <h3 className="pcard__title">{product.name}</h3>
+        <p className="pcard__desc">
+          {product.description.substring(0, 70)}...
         </p>
-        
-        <div className="card-footer">
-          <span className="price">₹{product.price.toLocaleString()}</span>
-          <Link to={`/product/${product._id}`} className="btn-details">
+
+        <div className="pcard__footer">
+          <span className="pcard__price">₹{product.price}</span>
+          <Link to={`/product/${product._id}`} className="pcard__btn">
             View Details
           </Link>
         </div>

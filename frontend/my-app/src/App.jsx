@@ -1,60 +1,55 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-// ... other imports
-import Navbar from './components/Navbar';
-import Home from './pages/Home';
-import ProductDetail from './pages/ProductDetail';
-import Contact from './pages/Contact';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import ForgotPassword from './pages/ForgotPassword';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import OrderSuccess from './pages/OrderSuccess';
-import Profile from './pages/Profile';
-import Orders from './pages/Orders';
-import ProductList from './pages/ProductList';
-import NotFound from './pages/NotFound';
+import Navbar from "./components/Navbar";
 
-// --- IMPORT WISHLIST HERE ---
-import Wishlist from './pages/Wishlist'; // <--- ADD THIS
+import Home from "./pages/Home";
+import ProductList from "./pages/ProductList";
+import ProductDetail from "./pages/ProductDetail";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import Orders from "./pages/Orders";
+import Wishlist from "./pages/Wishlist";
+import Profile from "./pages/Profile";
+import Contact from "./pages/Contact";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import NotFound from "./pages/NotFound";
+import OrderSuccess from "./pages/OrderSuccess";
 
-import './App.css';
+import { ShopProvider } from "./context/ShopContext";
+import "./App.css";
 
-function App() {
+const App = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+
   return (
-    <Router>
-      <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <Navbar />
-        <main style={{ flex: 1 }}>
+    <ShopProvider>
+      <Router>
+        <Navbar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        <main className="appMain">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route
+              path="/products"
+              element={<ProductList searchTerm={searchTerm} />}
+            />
             <Route path="/product/:id" element={<ProductDetail />} />
-            <Route path="/products" element={<ProductList />} />
-            <Route path="/products/:category" element={<ProductList />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/order-success" element={<OrderSuccess />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/orders" element={<Orders />} />
-
-            {/* --- ADD THE ROUTE HERE --- */}
-            <Route path="/wishlist" element={<Wishlist />} /> 
-
             <Route path="*" element={<NotFound />} />
+            <Route path="/order-success" element={<OrderSuccess />} />
           </Routes>
         </main>
-        <footer style={{ textAlign: 'center', padding: '20px', backgroundColor: '#333', color: '#fff', marginTop: 'auto' }}>
-          <p>&copy; {new Date().getFullYear()} MyShop E-Commerce. All rights reserved.</p>
-        </footer>
-      </div>
-    </Router>
+      </Router>
+    </ShopProvider>
   );
-}
+};
 
 export default App;
