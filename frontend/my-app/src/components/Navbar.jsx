@@ -1,34 +1,72 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { Link, NavLink } from "react-router-dom";
+import "../styles//Navbar.css";
 
 const Navbar = ({ searchTerm, setSearchTerm }) => {
+  const [open, setOpen] = useState(false);
+
   return (
-    <nav className="navbar">
-      <div className="container nav-container">
-        <Link to="/" className="nav-logo">MyShop.</Link>
-        
-        {/* Search Bar */}
-        <div className="search-container">
+    <header className="gNav">
+      <div className="gNav__inner">
+        <Link to="/" className="gNav__logo" onClick={() => setOpen(false)}>
+          MyShop<span className="gNav__dot">.</span>
+        </Link>
+
+        {/* Search */}
+        <div className="gNav__search">
+          <span className="gNav__searchIcon" aria-hidden="true">🔎</span>
           <input
+            className="gNav__searchInput"
             type="text"
             placeholder="Search products..."
-            value={searchTerm || ''}
+            value={searchTerm || ""}
             onChange={(e) => setSearchTerm && setSearchTerm(e.target.value)}
-            className="search-input"
           />
+          {searchTerm ? (
+            <button
+              type="button"
+              className="gNav__clear"
+              onClick={() => setSearchTerm && setSearchTerm("")}
+              aria-label="Clear search"
+              title="Clear"
+            >
+              ✕
+            </button>
+          ) : null}
         </div>
-        
-        <ul className="nav-links">
-          <li><Link to="/" className="nav-link">Home</Link></li>
-          <li><Link to="/products" className="nav-link">Products</Link></li>
-          <li><Link to="/cart" className="nav-link">Cart</Link></li>
-          <li><Link to="/contact" className="nav-link">Contact</Link></li>
-          <li><Link to="/login" className="btn-nav">Login</Link></li>
-        </ul>
+
+        {/* Mobile toggle */}
+        <button
+          className="gNav__toggle"
+          onClick={() => setOpen((v) => !v)}
+          aria-label="Toggle menu"
+        >
+          {open ? "✕" : "☰"}
+        </button>
+
+        {/* Links */}
+        <nav className={`gNav__links ${open ? "is-open" : ""}`}>
+          <NavLink to="/" className="gNav__link" onClick={() => setOpen(false)}>
+            Home
+          </NavLink>
+          <NavLink to="/products" className="gNav__link" onClick={() => setOpen(false)}>
+            Products
+          </NavLink>
+          <NavLink to="/cart" className="gNav__link" onClick={() => setOpen(false)}>
+            Cart
+          </NavLink>
+          <NavLink to="/contact" className="gNav__link" onClick={() => setOpen(false)}>
+            Contact
+          </NavLink>
+
+          <NavLink to="/login" className="gNav__btn" onClick={() => setOpen(false)}>
+            <span className="gNav__btnGlow" aria-hidden="true" />
+            Login
+          </NavLink>
+        </nav>
       </div>
-    </nav>
+    </header>
   );
 };
 
 export default Navbar;
-
