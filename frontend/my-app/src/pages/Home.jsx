@@ -1,43 +1,33 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import ProductCard from '../components/ProductCard';
-import SearchBar from '../components/SearchBar';
+import { useEffect, useState, useContext } from "react"
+import { Link } from "react-router-dom"
+import { ShopContext } from "../context/ShopContext"
 
-const Home = () => {
-  const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+export const Home = () => {
+  const [products, setProducts] = useState([])
+  const { addToCart } = useContext(ShopContext)
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/products')
-      .then(res => {
-        setProducts(res.data);
-        setFilteredProducts(res.data);
-        setLoading(false);
-      })
-      .catch(err => console.error(err));
-  }, []);
-
-  const handleSearch = (query) => {
-    const filtered = products.filter(p => 
-      p.title.toLowerCase().includes(query.toLowerCase())
-    );
-    setFilteredProducts(filtered);
-  };
-
-  if (loading) return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>;
+    fetch("https://fakestoreapi.com/products")
+      .then((res) => res.json())
+      .then((data) => setProducts(data))
+  }, [])
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-      <SearchBar onSearch={handleSearch} />
-      <h1 style={{ marginBottom: '2rem' }}>Products</h1>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1.5rem' }}>
-        {filteredProducts.map(product => (
-          <ProductCard key={product.id} product={product} />
+    <div>
+      <h1>Products</h1>
+      <div>
+        {products.map((product) => (
+          <div key={product.id}>
+            <img src={product.image} alt={product.title} width="100" />
+            <h3>{product.title}</h3>
+            <p>${product.price}</p>
+            <Link to={`/product/${product.id}`}>View Details</Link>
+            <button onClick={() => addToCart(product.id)}>
+              Add to Cart
+            </button>
+          </div>
         ))}
       </div>
     </div>
-  );
-};
-
-export default Home;
+  )
+}
