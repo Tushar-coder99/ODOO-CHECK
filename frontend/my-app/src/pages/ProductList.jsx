@@ -1,24 +1,44 @@
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { products } from '../data';
 
 const ProductList = () => {
+  const [params] = useSearchParams();
+  const q = (params.get('q') || '').toLowerCase();
+
+  const filtered = products.filter((p) => {
+    if (!q) return true;
+    return (
+      p.name.toLowerCase().includes(q) ||
+      p.category.toLowerCase().includes(q) ||
+      (p.description || '').toLowerCase().includes(q)
+    );
+  });
+
   return (
-    <div className="section">
-      <h2 className="section-title">All Products</h2>
+    <div className="page">
+      <div className="page-head">
+        <h2>All Products</h2>
+        <p className="muted">{filtered.length} items</p>
+      </div>
+
       <div className="grid">
-        {products.map((product) => (
+        {filtered.map((product) => (
           <div key={product.id} className="card">
-            <Link to={`/product/${product.id}`}>
+            <Link to={`/product/${product.id}`} className="card-media">
               <img src={product.image} alt={product.name} />
-              <div className="card-body">
-                <h3>{product.name}</h3>
-                <p style={{ color: '#64748b', fontSize: '0.9rem' }}>{product.category}</p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
-                  <span className="card-price">${product.price}</span>
-                  <button className="btn" style={{ padding: '5px 15px', fontSize: '0.8rem' }}>View</button>
-                </div>
-              </div>
             </Link>
+
+            <div className="card-body">
+              <div className="pill">{product.category}</div>
+              <h3 className="card-title">{product.name}</h3>
+
+              <div className="row">
+                <span className="price">${product.price}</span>
+                <Link to={`/product/${product.id}`} className="btn btn-ghost">
+                  View
+                </Link>
+              </div>
+            </div>
           </div>
         ))}
       </div>
