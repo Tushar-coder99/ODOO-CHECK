@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 
 const CartContext = createContext();
 
@@ -7,20 +8,76 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [wishlistItems, setWishlistItems] = useState([]);
   
-  // Auth State (Will be replaced by real backend token later)
+  // Auth State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('token'));
 
-  // --- AUTH ACTIONS ---
-  const login = (userData) => {
-    setIsAuthenticated(true);
-    setUser(userData);
-    toast.success(`Welcome back, ${userData.name}!`);
+  // --- 1. CHECK IF USER IS ALREADY LOGGED IN ---
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
+    
+    if (storedToken && storedUser) {
+      setToken(storedToken);
+      setUser(JSON.parse(storedUser));
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  // --- 2. REGISTER FUNCTION ---
+  const register = async (name, email, password) => {
+    try {
+      const res = await axios.post('http://localhost:5000/api/auth/register', {
+        name,
+        email,
+        password
+      });
+      
+      if (res.data) {
+        toast.success("Account created! Please Log In.");
+        return true; // Success
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Registration Failed");
+      return false;
+    }
   };
 
+  // --- 3. LOGIN FUNCTION ---
+  const login = async (email, password) => {
+    try {
+      const res = await axios.post('http://localhost:5000/api/auth/login', {
+        email,
+        password
+      });
+
+      if (res.data.token) {
+        // Save to Local Storage
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+        
+        // Update State
+        setToken(res.data.token);
+        setUser(res.data.user);
+        setIsAuthenticated(true);
+        
+        toast.success(`Welcome back, ${res.data.user.name}!`);
+        return true;
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Login Failed");
+      return false;
+    }
+  };
+
+  // --- 4. LOGOUT FUNCTION ---
   const logout = () => {
-    setIsAuthenticated(false);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setToken(null);
     setUser(null);
+    setIsAuthenticated(false);
     setCartItems([]);
     setWishlistItems([]);
     toast.success("Logged out successfully");
@@ -37,9 +94,7 @@ export const CartProvider = ({ children }) => {
       const existingItem = prevItems.find((item) => item.id === product.id);
       if (existingItem) {
         return prevItems.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       } else {
         return [...prevItems, { ...product, quantity: 1 }];
@@ -65,9 +120,7 @@ export const CartProvider = ({ children }) => {
     );
   };
 
-  const clearCart = () => {
-    setCartItems([]);
-  };
+  const clearCart = () => setCartItems([]);
 
   // --- WISHLIST ACTIONS ---
   const toggleWishlist = (product) => {
@@ -88,11 +141,8 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-  const isInWishlist = (id) => {
-    return wishlistItems.some((item) => item.id === id);
-  };
+  const isInWishlist = (id) => wishlistItems.some((item) => item.id === id);
 
-  // --- GETTERS ---
   const getCartCount = () => cartItems.reduce((total, item) => total + item.quantity, 0);
   const getWishlistCount = () => wishlistItems.length;
   const getCartTotal = () => cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -104,7 +154,8 @@ export const CartProvider = ({ children }) => {
         wishlistItems, 
         isAuthenticated,
         user,
-        login,
+        register, // <--- Export Register
+        login,    // <--- Export Login
         logout,
         addToCart, 
         removeFromCart, 

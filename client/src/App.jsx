@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'; // <--- THIS WAS MISSING
 import { CartProvider } from './context/CartContext';
-import { Toaster } from 'react-hot-toast'; // <--- Import Toaster
+import { Toaster } from 'react-hot-toast';
 
 // Import Pages
 import Home from './pages/Home';
@@ -11,8 +11,10 @@ import Sale from './pages/Sale';
 import Login from './pages/Login';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
-import Wishlist from './pages/Wishlist'; // <--- Import New Page
+import Wishlist from './pages/Wishlist';
+import AdminDashboard from './pages/AdminDashboard'; // Admin Page
 
+// Scroll To Top Component
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -26,7 +28,6 @@ function App() {
     <CartProvider>
       <BrowserRouter>
         <ScrollToTop />
-        {/* Configure Toast Design */}
         <Toaster 
           position="top-center" 
           toastOptions={{
@@ -44,7 +45,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/wishlist" element={<Wishlist />} /> {/* <--- Add Route */}
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
       </BrowserRouter>
     </CartProvider>

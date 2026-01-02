@@ -2,31 +2,45 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, User, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useCart } from '../context/CartContext'; // Import Context
+import { useCart } from '../context/CartContext';
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
+  
+  // Form States
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   
   const navigate = useNavigate(); 
-  const { login } = useCart(); // Get login function
+  const { login, register } = useCart(); // <--- Use the new functions
 
-  const handleAuth = (e) => {
+  const handleAuth = async (e) => {
     e.preventDefault(); 
-    if (!email || !password) {
-      alert("Please fill in all fields.");
-      return;
-    }
-
+    
     if (isLogin) {
-      // Simulate Backend Login
-      const mockUser = { name: "Harsh", email: email };
-      login(mockUser); // Tell Context we are logged in
-      navigate("/");
+      // --- HANDLE LOGIN ---
+      if (!email || !password) {
+        alert("Please fill in email and password.");
+        return;
+      }
+      const success = await login(email, password);
+      if (success) {
+        navigate("/"); // Redirect to Home on success
+      }
     } else {
-      alert("Account Created Successfully! Please Sign In.");
-      setIsLogin(true); 
+      // --- HANDLE REGISTER ---
+      if (!name || !email || !password) {
+        alert("Please fill in all fields.");
+        return;
+      }
+      const success = await register(name, email, password);
+      if (success) {
+        setIsLogin(true); // Switch to login view after successful signup
+        setEmail("");     // Clear form
+        setPassword("");
+        setName("");
+      }
     }
   };
 
@@ -75,18 +89,36 @@ const Login = () => {
                     {!isLogin && (
                       <div className="relative group">
                         <User className="absolute left-3 top-3.5 text-slate-400" size={20} />
-                        <input type="text" placeholder="Full Name" className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-10 py-3 focus:outline-none focus:border-blue-500 transition-all" />
+                        <input 
+                          type="text" 
+                          placeholder="Full Name" 
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-10 py-3 focus:outline-none focus:border-blue-500 transition-all" 
+                        />
                       </div>
                     )}
                     
                     <div className="relative group">
                       <Mail className="absolute left-3 top-3.5 text-slate-400" size={20} />
-                      <input type="email" placeholder="Email Address" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-10 py-3 focus:outline-none focus:border-blue-500 transition-all" />
+                      <input 
+                        type="email" 
+                        placeholder="Email Address" 
+                        value={email} 
+                        onChange={(e) => setEmail(e.target.value)} 
+                        className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-10 py-3 focus:outline-none focus:border-blue-500 transition-all" 
+                      />
                     </div>
 
                     <div className="relative group">
                       <Lock className="absolute left-3 top-3.5 text-slate-400" size={20} />
-                      <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-10 py-3 focus:outline-none focus:border-blue-500 transition-all" />
+                      <input 
+                        type="password" 
+                        placeholder="Password" 
+                        value={password} 
+                        onChange={(e) => setPassword(e.target.value)} 
+                        className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-10 py-3 focus:outline-none focus:border-blue-500 transition-all" 
+                      />
                     </div>
 
                     <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer">
